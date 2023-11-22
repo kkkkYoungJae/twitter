@@ -14,6 +14,7 @@ export interface PostProps {
   profileUrl?: string;
   likeCount?: number;
   comments?: any[];
+  hashTags?: string[];
 }
 
 const HomePage = () => {
@@ -30,8 +31,6 @@ const HomePage = () => {
           ...doc.data(),
           id: doc.id,
         }));
-
-        console.log(dataObj);
 
         setPosts(dataObj as PostProps[]);
       });

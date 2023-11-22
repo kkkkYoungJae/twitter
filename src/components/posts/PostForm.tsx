@@ -7,7 +7,10 @@ import { toast } from "react-toastify";
 
 const PostForm = () => {
   const [content, setContent] = useState("");
+  const [hashTag, setHashTag] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
   const { user } = useContext(AuthContext);
+
   const handleFileUpload = () => {};
 
   const onSubmit = async (e: any) => {
@@ -23,8 +26,11 @@ const PostForm = () => {
         }),
         uid: user?.uid,
         email: user?.email,
+        hashTags: tags,
       });
 
+      setHashTag("");
+      setTags([]);
       setContent("");
       toast.success("게시글을 생성했습니다.");
     } catch (err) {
@@ -42,6 +48,27 @@ const PostForm = () => {
     }
   };
 
+  const removeTag = (tag: string) => {
+    setTags((prev) => prev.filter((v) => v != tag));
+  };
+
+  const onChangeHashTag = (e: any) => {
+    setHashTag(e.target.value.trim());
+  };
+
+  const handleKeyUp = (e: any) => {
+    if (e.keyCode == 32 && hashTag !== "") {
+      // 같은 태그가 있다면 에러를 띄운다
+      // 아니면 태그를 생성해준다
+      if (tags.includes(hashTag)) {
+        toast.error("같은 태그가 있습니다");
+      } else {
+        setTags((prev) => [...prev, hashTag]);
+        setHashTag("");
+      }
+    }
+  };
+
   return (
     <form className="post-form" onSubmit={onSubmit}>
       <textarea
@@ -53,6 +80,24 @@ const PostForm = () => {
         value={content}
         onChange={onChange}
       />
+      <div className="post-form__hashtags">
+        <span className="post-form__hashtags-outputs">
+          {tags?.map((tag, index) => (
+            <span className="post-form__hashtags-tag" key={index} onClick={() => removeTag(tag)}>
+              #{tag}
+            </span>
+          ))}
+        </span>
+        <input
+          className="post-form__input"
+          name="hashtag"
+          id="hashtag"
+          placeholder="해시태그 + 스페이스바 입력"
+          onChange={onChangeHashTag}
+          onKeyUp={handleKeyUp}
+          value={hashTag}
+        />
+      </div>
       <div className="post-form__submit-area">
         <label htmlFor="file-input" className="post-form__file">
           <FiImage className="post-from__file-icon" />
